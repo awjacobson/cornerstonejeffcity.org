@@ -9,6 +9,7 @@ class Message
   var $date;
   var $speaker;
   var $file;
+  var $archived;
   var $lastMaintOpId;
   var $lastMaintDateTime;
 }
