@@ -1,6 +1,6 @@
 <?php
-require_once("/home/esllwnac/api/repository/baseDao.php");
-require_once("/home/esllwnac/api/models/message.php");
+require_once($_SERVER['DOCUMENT_ROOT']."/../api/repository/baseDao.php");
+require_once($_SERVER['DOCUMENT_ROOT']."/../api/models/message.php");
 
 class MessageDao extends BaseDao
 {
