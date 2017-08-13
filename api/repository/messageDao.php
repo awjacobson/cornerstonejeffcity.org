@@ -4,6 +4,27 @@ require_once($_SERVER['DOCUMENT_ROOT']."/../api/models/message.php");
 
 class MessageDao extends BaseDao
 {
+  function GetLatest($count = 1)
+  {
+    $result = $this->Query("SELECT Id, Title, Reference, Service, Description, Date, Speaker, File, Archived FROM Messages WHERE File IS NOT NULL AND File != '' ORDER BY Date DESC, Service DESC LIMIT ".$count);
+    while($row=mysql_fetch_array($result))
+    {
+      $message = new Message();
+      $message->id = $row["Id"];
+      $message->title = $row["Title"];
+      $message->reference = $row["Reference"];
+      $message->service = $row["Service"];
+      $message->description = $row["Description"];
+      $message->date = $row["Date"];
+      $message->speaker = $row["Speaker"];
+      $message->file = $row["File"];
+      $message->archived = $row["Archived"];
+    	$messages[] = $message;
+    }
+    @mysql_free_result($result);
+    return $messages;
+  }
+
   /**
    * Get a list of messages that are suitable to show to the public.
    */
@@ -21,7 +42,7 @@ class MessageDao extends BaseDao
       $message->date = $row["Date"];
       $message->speaker = $row["Speaker"];
       $message->file = $row["File"];
-      $message->file = $row["Archived"];
+      $message->archived = $row["Archived"];
     	$messages[] = $message;
     }
     @mysql_free_result($result);
@@ -42,7 +63,7 @@ class MessageDao extends BaseDao
       $message->date = $row["Date"];
       $message->speaker = $row["Speaker"];
       $message->file = $row["File"];
-      $message->file = $row["Archived"];
+      $message->archived = $row["Archived"];
     	$messages[] = $message;
     }
     @mysql_free_result($result);
@@ -59,7 +80,7 @@ class MessageDao extends BaseDao
     $row = $stmt->fetch();
 
     $message = new Message();
-    $message->id = $row["Id"];
+    $message->id = $messageId;
     $message->title = $row["Title"];
     $message->reference = $row["Reference"];
     $message->service = $row["Service"];
@@ -67,13 +88,20 @@ class MessageDao extends BaseDao
     $message->date = $row["Date"];
     $message->speaker = $row["Speaker"];
     $message->file = $row["File"];
-    $message->file = $row["Archived"];
+    $message->archived = $row["Archived"];
     $message->lastMaintOpId = $row["LastMaintOpid"];
     $message->lastMaintDateTime = $row["LastMaintDateTime"];
 
     return $message;
   }
 
+  /**
+   * Adds a message.
+   *
+   * @param Message Message to be added.
+   *
+   * @return int Id of added message.
+   */
   function AddMessage($message)
   {
     $dbh = $this->GetConnection();
@@ -87,6 +115,8 @@ class MessageDao extends BaseDao
     $stmt->bindParam(':archived', $message->archived);
     $stmt->bindParam(':description', $message->description);
     $stmt->execute();
+    $lastId = $dbh->lastInsertId();
+    return $lastId;
   }
 
   function UpdateMessage($message)
