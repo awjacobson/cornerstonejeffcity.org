@@ -12,5 +12,9 @@ class Message
   var $archived;
   var $lastMaintOpId;
   var $lastMaintDateTime;
+
+  function __construct() {
+       $this->archived = false;
+   }
 }
 ?>

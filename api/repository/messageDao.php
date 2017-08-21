@@ -104,11 +104,12 @@ class MessageDao extends BaseDao
    */
   function AddMessage($message)
   {
+    $date = date("Y-m-d",strtotime($message->date));
     $dbh = $this->GetConnection();
     $stmt = $dbh->prepare("INSERT INTO Messages (Title, Reference, Date, Service, Speaker, File, Archived, Description) VALUES (:title, :reference, :date, :service, :speaker, :file, :archived, :description)");
     $stmt->bindParam(':title', $message->title);
     $stmt->bindParam(':reference', $message->reference);
-    $stmt->bindParam(':date', date("Y-m-d",strtotime($message->date)));
+    $stmt->bindParam(':date', $date);
     $stmt->bindParam(':service', $message->service);
     $stmt->bindParam(':speaker', $message->speaker);
     $stmt->bindParam(':file', $message->file);
@@ -121,12 +122,13 @@ class MessageDao extends BaseDao
 
   function UpdateMessage($message)
   {
+    $date = date("Y-m-d",strtotime($message->date));
     $dbh = $this->GetConnection();
     $stmt = $dbh->prepare("UPDATE Messages SET Title=:title, Reference=:reference, Date=:date, Service=:service, Speaker=:speaker, File=:file, Archived=:archived, Description=:description, LastMaintDateTime=:currentTimestamp WHERE Id=:id");
     $stmt->bindParam(':id', $message->id);
     $stmt->bindParam(':title', $message->title);
     $stmt->bindParam(':reference', $message->reference);
-    $stmt->bindParam(':date', date("Y-m-d",strtotime($message->date)));
+    $stmt->bindParam(':date', $date);
     $stmt->bindParam(':service', $message->service);
     $stmt->bindParam(':speaker', $message->speaker);
     $stmt->bindParam(':file', $message->file);
