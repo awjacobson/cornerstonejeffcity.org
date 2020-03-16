@@ -6,8 +6,10 @@ class MessageDao extends BaseDao
 {
   function GetLatest($count = 1)
   {
-    $result = $this->Query("SELECT Id, Title, Reference, Service, Description, Date, Speaker, File, Archived FROM Messages WHERE File IS NOT NULL AND File != '' ORDER BY Date DESC, Service DESC LIMIT ".$count);
-    while($row=mysql_fetch_array($result))
+    $messages = array();
+    $pdo = $this->GetConnection();
+    $sql = "SELECT Id, Title, Reference, Service, Description, Date, Speaker, File, Archived FROM Messages WHERE File IS NOT NULL AND File != '' ORDER BY Date DESC, Service DESC LIMIT ".$count;
+    foreach($pdo->query($sql) as $row)
     {
       $message = new Message();
       $message->id = $row["Id"];
@@ -19,9 +21,9 @@ class MessageDao extends BaseDao
       $message->speaker = $row["Speaker"];
       $message->file = $row["File"];
       $message->archived = $row["Archived"];
-    	$messages[] = $message;
+      $messages[] = $message;
     }
-    @mysql_free_result($result);
+    $pdo = null;
     return $messages;
   }
 
@@ -31,8 +33,9 @@ class MessageDao extends BaseDao
   function GetAllMessagesForListeners()
   {
     $messages = array();
-    $result = $this->Query("SELECT Id,Title,Service,Reference,Date,Speaker,File,Archived FROM Messages WHERE File IS NOT NULL AND File != '' ORDER BY Date DESC, Service DESC");
-    while($row=mysql_fetch_array($result))
+    $pdo = $this->GetConnection();
+    $sql = "SELECT Id,Title,Service,Reference,Date,Speaker,File,Archived FROM Messages WHERE File IS NOT NULL AND File != '' ORDER BY Date DESC, Service DESC";
+    foreach($pdo->query($sql) as $row)
     {
       $message = new Message();
       $message->id = $row["Id"];
@@ -43,17 +46,18 @@ class MessageDao extends BaseDao
       $message->speaker = $row["Speaker"];
       $message->file = $row["File"];
       $message->archived = $row["Archived"];
-    	$messages[] = $message;
+      $messages[] = $message;
     }
-    @mysql_free_result($result);
+    $pdo = null;
     return $messages;
   }
 
   function GetAllMessages()
   {
     $messages = array();
-    $result = $this->Query("SELECT Id,Title,Service,Reference,Date,Speaker,File,Archived FROM Messages ORDER BY Date DESC");
-    while($row=mysql_fetch_array($result))
+    $pdo = $this->GetConnection();
+    $sql = "SELECT Id,Title,Service,Reference,Date,Speaker,File,Archived FROM Messages ORDER BY Date DESC";
+    foreach($pdo->query($sql) as $row)
     {
       $message = new Message();
       $message->id = $row["Id"];
@@ -64,9 +68,9 @@ class MessageDao extends BaseDao
       $message->speaker = $row["Speaker"];
       $message->file = $row["File"];
       $message->archived = $row["Archived"];
-    	$messages[] = $message;
+      $messages[] = $message;
     }
-    @mysql_free_result($result);
+    $pdo = null;
     return $messages;
   }
 
@@ -106,13 +110,16 @@ class MessageDao extends BaseDao
   {
     $date = date("Y-m-d",strtotime($message->date));
     $dbh = $this->GetConnection();
-    $stmt = $dbh->prepare("INSERT INTO Messages (Title, Reference, Date, Service, Speaker, File, Archived, Description) VALUES (:title, :reference, :date, :service, :speaker, :file, :archived, :description)");
+    $stmt = $dbh->prepare("INSERT INTO Messages (Title, Reference, Date, Service, Speaker, File, Length, Duration, Guid, Archived, Description) VALUES (:title, :reference, :date, :service, :speaker, :file, :length, :duration, :guid, :archived, :description)");
     $stmt->bindParam(':title', $message->title);
     $stmt->bindParam(':reference', $message->reference);
     $stmt->bindParam(':date', $date);
     $stmt->bindParam(':service', $message->service);
     $stmt->bindParam(':speaker', $message->speaker);
     $stmt->bindParam(':file', $message->file);
+    $stmt->bindParam(':length', $message->length);
+    $stmt->bindParam(':duration', $message->duration);
+    $stmt->bindParam(':guid', $message->guid);
     $stmt->bindParam(':archived', $message->archived);
     $stmt->bindParam(':description', $message->description);
     $stmt->execute();

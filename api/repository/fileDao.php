@@ -14,13 +14,11 @@ class FileDao extends BaseDao
     $unusedFiles = array();
 
     $usedFileNames = array();
-    foreach ($usedFiles as &$usedFile)
-    {
+    foreach ($usedFiles as &$usedFile) {
       $usedFileNames[] = $usedFile->name;
     }
 
-    foreach ($allFiles as &$file)
-    {
+    foreach ($allFiles as &$file) {
       if(!in_array($file->name, $usedFileNames))
       {
         $unusedFiles[] = $file;
